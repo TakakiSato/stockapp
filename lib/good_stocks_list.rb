@@ -38,7 +38,7 @@ class GoodStocksList
     #基準日
     for referenceDate in 0..5 do
       #基準日の当日が平均より上であること
-      if closingPriceList[referenceDate] < ac25List[referenceDate]
+      if ac25List[referenceDate] < closingPriceList[referenceDate]
         #基準日の前日から過去10日間の終値が平均より下であることをチェックする。
         for compareDateRefrence in 1..10 do
           compareDate=referenceDate+compareDateRefrence
@@ -64,8 +64,8 @@ class GoodStocksList
   def granbill2(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,ac25List)
     #基準日
     for referenceDate in 0..5 do
-      #基準日の当日が平均より上であること
-      if ac25List[referenceDate] < closingPriceList[referenceDate]
+      #基準日の当日が平均より下であること
+      if closingPriceList[referenceDate] < ac25List[referenceDate]
         #基準日の前日から過去10日間の終値が平均より上であることをチェックする。
         for compareDateRefrence in 1..10 do
           compareDate=referenceDate+compareDateRefrence
