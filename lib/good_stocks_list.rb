@@ -12,13 +12,13 @@ class GoodStocksList
       stockCodes = stockCodeList[code]
       #------------------------parameter set end--------------------------------------
       #メソッド呼び出し
-      nextFlug=granbill1(stockCodes,stockAssesmentDataes["@CD#{stockCodes}closingPriceList"],stockAssesmentDataes["@CD#{stockCodes}openingPriceList"],stockAssesmentDataes["@CD#{stockCodes}lowPriceList"],stockAssesmentDataes["@CD#{stockCodes}highPriceList"],stockAssesmentDataes["@CD#{stockCodes}volumeList"],stockAssesmentDataes["@CD#{stockCodes}ac25List"])
+      nextFlug=granbill1(stockCodes,stockAssesmentDataes["@CD#{stockCodes}closingPriceList"],stockAssesmentDataes["@CD#{stockCodes}openingPriceList"],stockAssesmentDataes["@CD#{stockCodes}lowPriceList"],stockAssesmentDataes["@CD#{stockCodes}highPriceList"],stockAssesmentDataes["@CD#{stockCodes}volumeList"],stockAssesmentDataes["@CD#{stockCodes}av25List"])
       if nextFlug == 1 then
       #テスト時コメントアウト
       next
       end
 
-      nextFlug=granbill2(stockCodes,stockAssesmentDataes["@CD#{stockCodes}closingPriceList"],stockAssesmentDataes["@CD#{stockCodes}openingPriceList"],stockAssesmentDataes["@CD#{stockCodes}lowPriceList"],stockAssesmentDataes["@CD#{stockCodes}highPriceList"],stockAssesmentDataes["@CD#{stockCodes}volumeList"],stockAssesmentDataes["@CD#{stockCodes}ac25List"])
+      nextFlug=granbill2(stockCodes,stockAssesmentDataes["@CD#{stockCodes}closingPriceList"],stockAssesmentDataes["@CD#{stockCodes}openingPriceList"],stockAssesmentDataes["@CD#{stockCodes}lowPriceList"],stockAssesmentDataes["@CD#{stockCodes}highPriceList"],stockAssesmentDataes["@CD#{stockCodes}volumeList"],stockAssesmentDataes["@CD#{stockCodes}av25List"])
       if nextFlug == 1 then
       #テスト時コメントアウト
       next
@@ -34,15 +34,15 @@ class GoodStocksList
     end
   end
 
-  def granbill1(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,ac25List)
+  def granbill1(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
     for referenceDate in 0..5 do
       #基準日の当日が平均より上であること
-      if ac25List[referenceDate] < closingPriceList[referenceDate]
+      if av25List[referenceDate] < closingPriceList[referenceDate]
         #基準日の前日から過去10日間の終値が平均より下であることをチェックする。
         for compareDateRefrence in 1..10 do
           compareDate=referenceDate+compareDateRefrence
-          if ac25List[compareDate] < closingPriceList[compareDate] then
+          if av25List[compareDate] < closingPriceList[compareDate] then
           break
           end
           avarageFlug=compareDateRefrence
@@ -61,15 +61,15 @@ class GoodStocksList
     end
   end
 
-  def granbill2(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,ac25List)
+  def granbill2(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
     for referenceDate in 0..5 do
       #基準日の当日が平均より下であること
-      if closingPriceList[referenceDate] < ac25List[referenceDate]
+      if closingPriceList[referenceDate] < av25List[referenceDate]
         #基準日の前日から過去10日間の終値が平均より上であることをチェックする。
         for compareDateRefrence in 1..10 do
           compareDate=referenceDate+compareDateRefrence
-          if closingPriceList[compareDate] < ac25List[compareDate] then
+          if closingPriceList[compareDate] < av25List[compareDate] then
           break
           end
           avarageFlug=compareDateRefrence
@@ -224,6 +224,22 @@ class GoodStocksList
                 logprint(stockCodes,"#{type}_Sasikomi",referenceDate)
               return 1
               end
+            end
+          end
+        end
+      end
+
+      #陰の陽はらみ
+      #前日が陰線である
+      if closingPriceList[referenceDate+1] < openingPriceList[referenceDate+1]
+        #当日が陽線である。
+        if openingPriceList[referenceDate] < closingPriceList[referenceDate]
+          #前日終値より当日始値が高いこと
+          if closingPriceList[referenceDate+1] < openingPriceList[referenceDate]
+            #当日終値より前日始値が高いこと
+            if  closingPriceList[referenceDate] < openingPriceList[referenceDate+1]
+              logprint(stockCodes,"#{type}_In_Yo_Harami",referenceDate)
+            return 1
             end
           end
         end
