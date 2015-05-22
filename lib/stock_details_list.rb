@@ -100,7 +100,7 @@ class StockDetailsList
     stockAssesmentData.store("@CD#{stockCodes[num]}lowPriceList" ,eval("@CD#{stockCodes[num]}lowPriceList"))
     stockAssesmentData.store("@CD#{stockCodes[num]}closingPriceList" ,eval("@CD#{stockCodes[num]}closingPriceList"))
     stockAssesmentData.store("@CD#{stockCodes[num]}volumeList" ,eval("@CD#{stockCodes[num]}volumeList"))
-    stockAssesmentData.store("@CD#{stockCodes[num]}ac25List" ,eval("@CD#{stockCodes[num]}av25List"))
+    stockAssesmentData.store("@CD#{stockCodes[num]}av25List" ,eval("@CD#{stockCodes[num]}av25List"))
 
     #テストの際はコメントアウト
     end
