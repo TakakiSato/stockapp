@@ -41,6 +41,9 @@ class StockDetailsList
   end
 
   def getAssessmentStock(stockDetails ,stockCodes)
+
+    
+    
     #戻り値用のハッシュをnew
     stockAssesmentData=Hash.new
     p stockCodes
@@ -59,6 +62,11 @@ class StockDetailsList
     stockDetail=stockDetails["CD#{stockCodes[num]}"]
     p "CD#{stockCodes[num]}"
     p stockDetail
+    p "CD#{stockCodes[num]}.length"
+    #IPO株チェック
+      if "CD#{stockCodes[num]}.length" <= 419 then
+        next
+      end
     for subnum in 1..stockDetail.length-1 do
       #始値を配列に投入する。
       if subnum % 7 == 1 then
