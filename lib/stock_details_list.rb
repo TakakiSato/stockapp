@@ -62,9 +62,9 @@ class StockDetailsList
     stockDetail=stockDetails["CD#{stockCodes[num]}"]
     p "CD#{stockCodes[num]}"
     p stockDetail
-    p "CD#{stockCodes[num]}.length"
+    p stockDetail.length
     #IPO株チェック
-      if "CD#{stockCodes[num]}.length" <= 419 then
+      if stockDetail.length <= 419 then
         next
       end
     for subnum in 1..stockDetail.length-1 do
