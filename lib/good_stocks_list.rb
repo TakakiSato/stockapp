@@ -6,6 +6,7 @@ class GoodStocksList
     #code = 0
     #テスト時コメントアウト
     for code in 0..stockCodeList.length-1 do
+      p code
       #処理中断Flug
       nextFlug = 0
       #株価コード
