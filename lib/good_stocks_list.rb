@@ -4,9 +4,7 @@ class GoodStocksList
   def assessmentStock(stockAssesmentDataes,stockCodeList)
     #テスト用コード
     #code = 0
-    #テスト時コメントアウト
     for code in 0..stockCodeList.length-1 do
-      p code
       #処理中断Flug
       nextFlug = 0
       #株価コード
@@ -25,7 +23,8 @@ class GoodStocksList
       next
       end
 
-      nextFlug=onlyCandle(stockCodes,stockAssesmentDataes["@CD#{stockCodes}closingPriceList"],stockAssesmentDataes["@CD#{stockCodes}openingPriceList"],stockAssesmentDataes["@CD#{stockCodes}lowPriceList"],stockAssesmentDataes["@CD#{stockCodes}highPriceList"],stockAssesmentDataes["@CD#{stockCodes}volumeList"])
+      #nextFlug=onlyCandle(stockCodes,stockAssesmentDataes["@CD#{stockCodes}closingPriceList"],stockAssesmentDataes["@CD#{stockCodes}openingPriceList"],stockAssesmentDataes["@CD#{stockCodes}lowPriceList"],stockAssesmentDataes["@CD#{stockCodes}highPriceList"],stockAssesmentDataes["@CD#{stockCodes}volumeList"])
+      nextFlug=granbill3(stockCodes,stockAssesmentDataes["@CD#{stockCodes}closingPriceList"],stockAssesmentDataes["@CD#{stockCodes}openingPriceList"],stockAssesmentDataes["@CD#{stockCodes}lowPriceList"],stockAssesmentDataes["@CD#{stockCodes}highPriceList"],stockAssesmentDataes["@CD#{stockCodes}volumeList"],stockAssesmentDataes["@CD#{stockCodes}av25List"])
       if nextFlug == 1 then
       #テスト時コメントアウト
       next
@@ -38,72 +37,98 @@ class GoodStocksList
   def granbill1(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
     for referenceDate in 0..5 do
-      #基準日の当日が平均より上であること
-      if av25List[referenceDate] < closingPriceList[referenceDate]
-        #基準日の前日から過去10日間の終値が平均より下であることをチェックする。
-        for compareDateRefrence in 1..10 do
-          compareDate=referenceDate+compareDateRefrence
-          if av25List[compareDate] < closingPriceList[compareDate] then
-          break
-          end
-          avarageFlug=compareDateRefrence
+      #基準日から過去10日間の終値が平均より下であることをチェックする。
+      for compareDateRefrence in 1..9 do
+        compareDate=referenceDate+compareDateRefrence
+        if av25List[compareDate] < closingPriceList[compareDate] then
+        break
         end
-        #過去平均の条件を満たす場合、ローソク足の評価をする。
-        if avarageFlug==10 then
-          ##p stockCodes
+        avarageFlug=compareDateRefrence
+      end
+      #過去平均の条件を満たす場合、ローソク足の評価をする。
+      if avarageFlug==9 then
+        ##p stockCodes
+        #参照日の高値が255日平均を超えていること
+        if av25List[referenceDate] < highPriceList[referenceDate] then
           nextFlug=candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,"granbill1")
           #条件に合致する銘柄だった場合、処理を中断して、nextFlugを返す。
           ##p nextFlug
           if nextFlug==1
-          return nextFlug
+            return nextFlug
           end
         end
-      end
+      end
     end
   end
 
   def granbill2(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
     for referenceDate in 0..5 do
-      #基準日の当日が平均より下であること
-      if closingPriceList[referenceDate] < av25List[referenceDate]
-        #基準日の前日から過去10日間の終値が平均より上であることをチェックする。
-        for compareDateRefrence in 1..10 do
-          compareDate=referenceDate+compareDateRefrence
-          if closingPriceList[compareDate] < av25List[compareDate] then
-          break
-          end
-          avarageFlug=compareDateRefrence
+      #基準日から過去15日間の終値が平均より上であることをチェックする。
+      for compareDateRefrence in 1..9 do
+        compareDate=referenceDate+compareDateRefrence
+        if closingPriceList[compareDate] < av25List[compareDate] then
+         break
         end
-        #過去平均の条件を満たす場合、ローソク足の評価をする。
-        if avarageFlug==10 then
-          ##p stockCodes
-          if lowPriceList[referenceDate] < closingPriceList[20] then
-            nextFlug=candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,"granbill2")
-          #条件に合致する銘柄だった場合、処理を中断して、nextFlugを返す。
-          end
-          ##p nextFlug
-          if nextFlug==1
+        avarageFlug=compareDateRefrence
+      end
+      #過去平均の条件を満たす場合、ローソク足の評価をする。
+      if avarageFlug==9 then
+        ##p stockCodes
+        #参照日の安値が25日平均を下回ること
+        if lowPriceList[referenceDate] < av25List[referenceDate] then
+          nextFlug=candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,"granbill2")
+        #条件に合致する銘柄だった場合、処理を中断して、nextFlugを返す。
+        end
+        ##p nextFlug
+        if nextFlug==1
           return nextFlug
-
-          end
-
         end
       end
     end
   end
 
-  def onlyCandle(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList)
+  def granbill3(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
     for referenceDate in 0..5 do
-      nextFlug=candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,"onlyCandle")
-      #条件に合致する銘柄だった場合、処理を中断して、nextFlugを返す。
-      ##p nextFlug
-      if nextFlug==1
-      return nextFlug
+      #基準日から過去15日間の終値が平均より上であることをチェックする。
+      for compareDateRefrence in 1..9 do
+        compareDate=referenceDate+compareDateRefrence
+        if closingPriceList[compareDate] < av25List[compareDate] then
+          break
+        end
+        avarageFlug=compareDateRefrence
+      end
+      #過去平均の条件を満たす場合、ローソク足の評価をする。
+      if avarageFlug==9 then
+        ##p stockCodes
+        #当日の安値が平均の1.02倍以下であること(移動平均線付近まで下落した)
+        if lowPriceList[referenceDate] < av25List[referenceDate]*1.02 then
+          #当日の安値が移動平均線を割っていないこと
+          if av25List[referenceDate] < lowPriceList[referenceDate] then
+            nextFlug=candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,"granbill3")
+          #条件に合致する銘柄だった場合、処理を中断して、nextFlugを返す。
+          end
+        end
+        ##p nextFlug
+        if nextFlug==1
+        return nextFlug
+        end
       end
     end
   end
+
+  #  def onlyCandle(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList)
+  #    #基準日
+  #    for referenceDate in 0..5 do
+  #      nextFlug=candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,"onlyCandle")
+  #      #条件に合致する銘柄だった場合、処理を中断して、nextFlugを返す。
+  #      ##p nextFlug
+  #      if nextFlug==1
+  #      return nextFlug
+  #      end
+  #    end
+  #  end
 
   def candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,type)
     #基準日
@@ -134,35 +159,47 @@ class GoodStocksList
         end
       end
 
-      #抱きの一本
-      #前日が陰線
-      if closingPriceList[referenceDate+1] < openingPriceList[referenceDate+1]
-        #当日始値が前日終わりより低い価格
-        if openingPriceList[referenceDate] < closingPriceList[referenceDate+1]
-          #陽線であること
-          if openingPriceList[referenceDate] < closingPriceList[referenceDate]
-            priceRange = closingPriceList[referenceDate] - openingPriceList[referenceDate]
-            tagetGrowthRate = closingPriceList[referenceDate]*0.05
-            #大陽線であること
-            if tagetGrowthRate < priceRange
-              logprint(stockCodes,"#{type}_Daki",referenceDate)
-            return 1
-            end
-          end
-        end
-      end
+      #      #抱きの一本
+      #      #前日が陰線
+      #      if closingPriceList[referenceDate+1] < openingPriceList[referenceDate+1]
+      #        #当日始値が前日終わりより低い価格
+      #        if openingPriceList[referenceDate] < closingPriceList[referenceDate+1]
+      #          #陽線であること
+      #          if openingPriceList[referenceDate] < closingPriceList[referenceDate]
+      #            priceRange = closingPriceList[referenceDate] - openingPriceList[referenceDate]
+      #            tagetGrowthRate = closingPriceList[referenceDate]*0.05
+      #            #大陽線であること
+      #            if tagetGrowthRate < priceRange
+      #              logprint(stockCodes,"#{type}_Daki",referenceDate)
+      #            return 1
+      #            end
+      #          end
+      #        end
+      #      end
+      #
+      #      #寄り切り線
+      #      if openingPriceList[referenceDate] == lowPriceList[referenceDate]
+      #        #陽線であること
+      #        if openingPriceList[referenceDate] < closingPriceList[referenceDate]
+      #          priceRange = closingPriceList[referenceDate] - openingPriceList[referenceDate]
+      #          tagetGrowthRate = closingPriceList[referenceDate]*0.05
+      #          #大陽線
+      #          if tagetGrowthRate < priceRange
+      #            logprint(stockCodes,"#{type}_Yorikiri",referenceDate)
+      #          return 1
+      #          end
+      #        end
+      #      end
 
-      #寄り切り線
-      if openingPriceList[referenceDate] == lowPriceList[referenceDate]
-        #陽線であること
-        if openingPriceList[referenceDate] < closingPriceList[referenceDate]
-          priceRange = closingPriceList[referenceDate] - openingPriceList[referenceDate]
-          tagetGrowthRate = closingPriceList[referenceDate]*0.05
-          #大陽線
-          if tagetGrowthRate < priceRange
-            logprint(stockCodes,"#{type}_Yorikiri",referenceDate)
-          return 1
-          end
+      #大陽線
+      #陽線であること
+      if openingPriceList[referenceDate] < closingPriceList[referenceDate]
+        priceRange = closingPriceList[referenceDate] - openingPriceList[referenceDate]
+        tagetGrowthRate = closingPriceList[referenceDate]*0.03
+        #大陽線
+        if tagetGrowthRate < priceRange
+          logprint(stockCodes,"#{type}_Daiyousen",referenceDate)
+        return 1
         end
       end
 
@@ -170,18 +207,18 @@ class GoodStocksList
       #二日前が陰線であること
       if closingPriceList[referenceDate+2] < openingPriceList[referenceDate+2]
         #一日前窓を開けて下落すること
-        if openingPriceList[referenceDate+1] < closingPriceList[referenceDate+2]
-          if closingPriceList[referenceDate+1] < closingPriceList[referenceDate+2]
-            #当日窓を開けて上昇
-            if closingPriceList[referenceDate+1] < openingPriceList[referenceDate]
-              if openingPriceList[referenceDate+1] < openingPriceList[referenceDate]
-                if openingPriceList[referenceDate] < closingPriceList[referenceDate]
-                  logprint(stockCodes,"#{type}_Ake",referenceDate)
-                return 1
-                end
-              end
+        if highPriceList[referenceDate+1] < lowPriceList[referenceDate+2]
+          #if closingPriceList[referenceDate+1] < closingPriceList[referenceDate+2]
+          #当日窓を開けて上昇
+          if highPriceList[referenceDate+1] < lowPriceList[referenceDate]
+            #if openingPriceList[referenceDate+1] < openingPriceList[referenceDate]
+            if openingPriceList[referenceDate] < closingPriceList[referenceDate]
+              logprint(stockCodes,"#{type}_Ake",referenceDate)
+            return 1
             end
+          #end
           end
+        #end
         end
       end
 
@@ -200,7 +237,7 @@ class GoodStocksList
                 if closingPriceList[referenceDate+1] < closingPriceList[referenceDate]
                   #当日の始値より、一日前の終値が高い
                   if openingPriceList[referenceDate] < closingPriceList[referenceDate+1]
-                    logprint(stockCodes,"#{type}_Akasanpei",referenceDate)
+                    logprint(stockCodes,"#{type}_Akasanpei_Geraku",referenceDate)
                   return 1
                   end
                 end
@@ -213,34 +250,57 @@ class GoodStocksList
       #陽の差し込み線
       #前日が陰線である
       if closingPriceList[referenceDate+1] < openingPriceList[referenceDate+1]
-        #当日が陽線である。
-        if openingPriceList[referenceDate] < closingPriceList[referenceDate]
-          #前日終値より当日終値が高いこと
-          if closingPriceList[referenceDate+1] < closingPriceList[referenceDate]
-            #前日終値より当日始値が低いこと
-            if openingPriceList[referenceDate] < closingPriceList[referenceDate+1]
-              #前日初値より当日終値が低いこと
-              if closingPriceList[referenceDate] < openingPriceList[referenceDate+1]
+      priceRange = openingPriceList[referenceDate+1] - closingPriceList[referenceDate+1]
+        tagetGrowthRate = closingPriceList[referenceDate]*0.03
+        #大陰線
+        if tagetGrowthRate < priceRange
 
-                logprint(stockCodes,"#{type}_Sasikomi",referenceDate)
-              return 1
+        #当日が陽線である。
+          if openingPriceList[referenceDate] < closingPriceList[referenceDate]
+          #前日終値より当日終値が高いこと
+            if closingPriceList[referenceDate+1] < closingPriceList[referenceDate]
+            #前日終値より当日始値が低いこと
+              if openingPriceList[referenceDate] < closingPriceList[referenceDate+1]
+              #前日初値より当日終値が低いこと
+                if closingPriceList[referenceDate] < openingPriceList[referenceDate+1]
+
+                  logprint(stockCodes,"#{type}_Sasikomi",referenceDate)
+                  return 1
+                end
               end
             end
           end
         end
       end
-
-      #陰の陽はらみ
-      #前日が陰線である
-      if closingPriceList[referenceDate+1] < openingPriceList[referenceDate+1]
-        #当日が陽線である。
-        if openingPriceList[referenceDate] < closingPriceList[referenceDate]
-          #前日終値より当日始値が高いこと
-          if closingPriceList[referenceDate+1] < openingPriceList[referenceDate]
-            #当日終値より前日始値が高いこと
-            if  closingPriceList[referenceDate] < openingPriceList[referenceDate+1]
-              logprint(stockCodes,"#{type}_In_Yo_Harami",referenceDate)
-            return 1
+      #上げ三方仕掛け
+      #三日前が陽線である
+      if openingPriceList[referenceDate+3] < closingPriceList[referenceDate+3]
+        #二日前の始値が三日前の終値より低い
+        if openingPriceList[referenceDate+2] < closingPriceList[referenceDate+3]
+          #二日前が陰線
+          if closingPriceList[referenceDate+2] < openingPriceList[referenceDate+2]
+            #二日前の終値が三日前の終値より低い
+            if closingPriceList[referenceDate+2] < closingPriceList[referenceDate+3]
+              #二日前の始値が三日前の終値より低い
+              if openingPriceList[referenceDate+1] < closingPriceList[referenceDate+2]
+                #一日前が陰線
+                if closingPriceList[referenceDate+1] < openingPriceList[referenceDate+1]
+                  #一日前の終値が二日前の終値より低い
+                  if closingPriceList[referenceDate+1] < closingPriceList[referenceDate+2]
+                    #一日前の始値が二日前の終値より低い
+                    if openingPriceList[referenceDate+1] < closingPriceList[referenceDate+2]
+                      #当日が陰線
+                      if closingPriceList[referenceDate] < openingPriceList[referenceDate]
+                        #当日の終値が一日前の終値より低い
+                        if closingPriceList[referenceDate] < closingPriceList[referenceDate+1]
+                          logprint(stockCodes,"#{type}_agesanpo",referenceDate)
+                        return 1
+                        end 
+                      end
+                    end
+                  end
+                end
+              end
             end
           end
         end
