@@ -37,7 +37,8 @@ class GoodStocksList
 
   def granbill1(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
-    for referenceDate in 0..5 do
+    #for referenceDate in 0..5 do
+    referenceDate=0
       #基準日から過去10日間から前日の移動平均線が下落中であることをチェックする。
       
       for compareDateRefrence in 1..9 do
@@ -62,12 +63,13 @@ class GoodStocksList
           end
         end
       end
-    end
+    #end
   end
 
   def granbill2(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
-    for referenceDate in 0..5 do
+    #for referenceDate in 0..5 do
+      referenceDate=0
       #基準日から過去10日間の25日平均線が上昇を示していることをチェックする。
       for compareDateRefrence in 1..9 do
         compareDate=referenceDate+compareDateRefrence
@@ -89,12 +91,13 @@ class GoodStocksList
           return nextFlug
         end
       end
-    end
+    #end
   end
 
   def granbill3(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
-    for referenceDate in 0..5 do
+    #for referenceDate in 0..5 do
+    referenceDate=0
       #基準日から過去15日間の終値が平均より上であることをチェックする。
       for compareDateRefrence in 1..9 do
         compareDate=referenceDate+compareDateRefrence
@@ -120,7 +123,7 @@ class GoodStocksList
         end
       end
 
-    end
+    #end
   end
 
   #  def onlyCandle(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList)
