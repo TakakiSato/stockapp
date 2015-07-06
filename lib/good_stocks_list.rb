@@ -28,7 +28,8 @@ class GoodStocksList
       if nextFlug == 1 then
       #テスト時コメントアウト
       next
-      end
+      end
+
     #nextFlug=lows(stockCodes,"@CD#{stockCodes}closingPriceList","@CD#{stockCodes}openingPriceList","@CD#{stockCodes}lowPriceList","@CD#{stockCodes}highPriceList","@CD#{stockCodes}volumeList")
     #テスト時コメントアウト
     end
@@ -37,37 +38,40 @@ class GoodStocksList
   def granbill1(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
     for referenceDate in 0..5 do
-      #基準日から過去10日間の終値が平均より下であることをチェックする。
+      #基準日から過去10日間から前日の移動平均線が下落中であることをチェックする。
+      
       for compareDateRefrence in 1..9 do
         compareDate=referenceDate+compareDateRefrence
-        if av25List[compareDate] < closingPriceList[compareDate] then
+        if av25List[compareDate] >= av25List[compareDate+1] then
         break
         end
         avarageFlug=compareDateRefrence
       end
       #過去平均の条件を満たす場合、ローソク足の評価をする。
       if avarageFlug==9 then
-        ##p stockCodes
-        #参照日の高値が255日平均を超えていること
-        if av25List[referenceDate] < highPriceList[referenceDate] then
-          nextFlug=candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,"granbill1")
-          #条件に合致する銘柄だった場合、処理を中断して、nextFlugを返す。
-          ##p nextFlug
-          if nextFlug==1
-            return nextFlug
+        #当日は移動平均線が上昇を示してることをチェックする。
+        if av25List[referenceDate] >= av25List[referenceDate+1] then
+        #参照日の高値が25日平均を超えていること
+          if av25List[referenceDate] < highPriceList[referenceDate] then
+            nextFlug=candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,"granbill1")
+            #条件に合致する銘柄だった場合、処理を中断して、nextFlugを返す。
+            ##p nextFlug
+            if nextFlug==1
+              return nextFlug
+            end
           end
         end
-      end
+      end
     end
   end
 
   def granbill2(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,av25List)
     #基準日
     for referenceDate in 0..5 do
-      #基準日から過去15日間の終値が平均より上であることをチェックする。
+      #基準日から過去10日間の25日平均線が上昇を示していることをチェックする。
       for compareDateRefrence in 1..9 do
         compareDate=referenceDate+compareDateRefrence
-        if closingPriceList[compareDate] < av25List[compareDate] then
+        if av25List[compareDate] <= av25List[compareDate+1] then
          break
         end
         avarageFlug=compareDateRefrence
@@ -94,7 +98,7 @@ class GoodStocksList
       #基準日から過去15日間の終値が平均より上であることをチェックする。
       for compareDateRefrence in 1..9 do
         compareDate=referenceDate+compareDateRefrence
-        if closingPriceList[compareDate] < av25List[compareDate] then
+        if av25List[compareDate] <= av25List[compareDate+1] then
           break
         end
         avarageFlug=compareDateRefrence
@@ -114,7 +118,8 @@ class GoodStocksList
         if nextFlug==1
         return nextFlug
         end
-      end
+      end
+
     end
   end
 
@@ -132,7 +137,7 @@ class GoodStocksList
 
   def candleCheck(stockCodes,closingPriceList,openingPriceList,lowPriceList,highPriceList,volumeList,type)
     #基準日
-    for referenceDate in 0..5 do
+    for referenceDate in 0..3 do
       #たくり線
       #基準日が陽線である
       if openingPriceList[referenceDate] < closingPriceList[referenceDate]
@@ -304,7 +309,7 @@ class GoodStocksList
             end
           end
         end
-      end
+      end
     end
   end
 
